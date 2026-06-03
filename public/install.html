@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Dinero - App</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #020617;
+      color: #f1f5f9;
+      min-height: 100vh;
+      padding: 24px 20px;
+    }
+    .container { max-width: 480px; margin: 0 auto; }
+    h1 { font-size: 26px; margin-bottom: 8px; }
+    .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 14px; }
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid #334155;
+    }
+    .card h2 { font-size: 16px; margin-bottom: 12px; color: #10b981; }
+    .step { display: flex; gap: 12px; margin-bottom: 14px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #10b981; color: #020617;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 14px; flex-shrink: 0;
+    }
+    .step p { font-size: 14px; line-height: 1.5; color: #cbd5e1; }
+    .open-btn {
+      display: block; width: 100%; padding: 18px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white; text-align: center; border-radius: 14px;
+      text-decoration: none; font-weight: bold; font-size: 16px;
+      margin-top: 8px; box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+    }
+    .icon { font-size: 24px; margin-right: 8px; }
+    ul { padding-left: 20px; color: #cbd5e1; font-size: 14px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💵 Mi Dinero</h1>
+    <p class="subtitle">Tu app de gastos personales y administración de dinero</p>
+
+    <a href="/" class="open-btn">📱 Abrir la App</a>
+
+    <div class="card" style="margin-top: 24px;">
+      <h2>📲 Instalar en Android (Chrome)</h2>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Tocá el botón <strong>"Abrir la App"</strong> de arriba para entrar.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>En la barra de Chrome tocá el menú <strong>⋮</strong> (tres puntos arriba a la derecha).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Elegí <strong>"Instalar aplicación"</strong> o <strong>"Agregar a pantalla principal"</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>Confirmá tocando <strong>"Instalar"</strong>. Listo, ya tenés la app en tu celular.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🍎 Instalar en iPhone (Safari)</h2>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Abrí esta página con <strong>Safari</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Tocá el botón de <strong>Compartir</strong> (cuadrado con flecha hacia arriba).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Elegí <strong>"Agregar a pantalla de inicio"</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <p>Tocá <strong>"Agregar"</strong> y ya queda instalada.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>✨ Funciones principales</h2>
+      <ul>
+        <li><strong>📊 Inicio:</strong> Balance del mes, gráficos y presupuesto diario</li>
+        <li><strong>💰 Ingresos:</strong> Registra sueldo, freelance, ventas</li>
+        <li><strong>💸 Gastos:</strong> Controla cada peso que sale</li>
+        <li><strong>🎯 Plan:</strong> Regla 50/30/20 y presupuestos personalizados</li>
+        <li><strong>🛵 Reparto:</strong> Botones rápidos + GPS para repartidores</li>
+        <li><strong>⭐ Metas:</strong> Ahorra para tus sueños</li>
+        <li><strong>📅 Historial:</strong> Calendario + gráficos mensuales</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>💾 Sobre tus datos</h2>
+      <p style="font-size: 13px; line-height: 1.6; color: #cbd5e1;">
+        Todos tus datos se guardan <strong>solo en tu celular</strong> (localStorage).
+        No se suben a ningún servidor. Si desinstalás la app, se pierden.
+        Usá la opción <strong>"Exportar Datos (JSON)"</strong> en Historial para hacer respaldo.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
