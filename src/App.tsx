@@ -3,6 +3,7 @@ import LandingPage from '@/components/LandingPage';
 import DashboardApp from '@/components/DashboardApp';
 import Auth from '@/components/Auth';
 import AdminPanel from '@/components/AdminPanel';
+import GlobalBanner from '@/components/GlobalBanner';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/utils/supabase';
@@ -128,6 +129,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
+      <GlobalBanner />
       <AuthProvider>
         <UpdateChecker>
           <GlobalProtection>

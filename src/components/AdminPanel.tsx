@@ -24,6 +24,8 @@ export default function AdminPanel() {
   // CMS State
   const [contactEmail, setContactEmail] = useState('contacto@finsync.app');
   const [contactPhone, setContactPhone] = useState('+52 55 0000 0000');
+  const [globalBannerText, setGlobalBannerText] = useState('');
+  const [globalBannerActive, setGlobalBannerActive] = useState(false);
   const [promoBanner, setPromoBanner] = useState('');
   const [promoBlocks, setPromoBlocks] = useState<PromoBlock[]>([
     { id: '1', type: 'image', url: '', title: '', description: '' },
@@ -56,6 +58,8 @@ export default function AdminPanel() {
       if (settings.promo_blocks && settings.promo_blocks.length > 0) {
         setPromoBlocks(settings.promo_blocks);
       }
+      setGlobalBannerText(settings.global_banner_text || '');
+      setGlobalBannerActive(settings.global_banner_active || false);
     }
 
     setLoadingUsers(false);
@@ -105,13 +109,15 @@ export default function AdminPanel() {
     localStorage.setItem('finSync_contact', JSON.stringify({ email: contactEmail, phone: contactPhone }));
     localStorage.setItem('finSync_promo', promoBanner);
     
-    // Save Promo Blocks to Supabase
+    // Save Promo Blocks and Global Banner to Supabase
     const { error } = await supabase.from('app_settings').update({
-      promo_blocks: promoBlocks
+      promo_blocks: promoBlocks,
+      global_banner_text: globalBannerText,
+      global_banner_active: globalBannerActive
     }).eq('id', 1); // Assuming id 1 is the main settings row
 
     if (error) {
-      alert('Error guardando en Supabase: ' + error.message + '\n\nNOTA: Asegúrate de haber ejecutado la migración de base de datos para agregar la columna promo_blocks en app_settings.');
+      alert('Error guardando en Supabase: ' + error.message + '\n\nNOTA: Asegúrate de haber ejecutado las sentencias SQL para crear app_settings y las columnas.');
     } else {
       alert('Cambios guardados exitosamente. Se reflejarán en la Landing Page al instante.');
     }
@@ -437,8 +443,47 @@ export default function AdminPanel() {
 
           {/* TAB: CMS */}
           {activeTab === 'cms' && (
-            <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
-              <div className="bg-[#09090b] border border-white/[0.05] rounded-[3rem] p-10 shadow-2xl">
+            <div className="space-y-8 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+                {/* GLOBAL BANNER SECTION */}
+                <div className="bg-[#09090b] rounded-3xl p-8 border border-white/5 shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[80px] rounded-full -mr-32 -mt-32 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+                  
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                      <Megaphone className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-white tracking-widest uppercase italic">Anuncio Global</h3>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Aparece en la parte superior para todos los usuarios</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between p-4 bg-zinc-900/50 rounded-xl border border-white/5">
+                      <div>
+                        <p className="text-sm font-bold text-white">Activar Banner</p>
+                        <p className="text-xs text-zinc-500">Muestra u oculta el anuncio global</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" className="sr-only peer" checked={globalBannerActive} onChange={(e) => setGlobalBannerActive(e.target.checked)} />
+                        <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                      </label>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Texto del Anuncio</label>
+                      <input
+                        type="text"
+                        value={globalBannerText}
+                        onChange={(e) => setGlobalBannerText(e.target.value)}
+                        className="w-full bg-zinc-900/50 border border-white/10 rounded-xl p-4 text-white text-sm font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
+                        placeholder="Ej: ¡Actualización importante! Descarga la nueva versión..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#09090b] border border-white/[0.05] rounded-[3rem] p-10 shadow-2xl">
                 <div className="mb-10">
                   <h2 className="text-2xl font-black text-white uppercase italic tracking-widest flex items-center gap-3">
                     <LayoutTemplate className="w-6 h-6 text-amber-500" /> Transmisión Web
