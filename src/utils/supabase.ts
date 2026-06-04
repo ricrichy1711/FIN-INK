@@ -1,10 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_key';
-
-if (supabaseUrl === 'https://placeholder.supabase.co') {
-  console.error("🚨 ERROR CRÍTICO: Las variables de entorno VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY no están configuradas en Vercel.");
-}
+// ¡LAS CLAVES SE QUEDARON FIJAS AQUÍ PARA QUE VERCEL NO FALLE!
+// Como el ANON_KEY es público por defecto, es completamente seguro tenerlas aquí.
+const supabaseUrl = 'https://oijdhwsuyswmeegcrbuq.supabase.co';
+const supabaseAnonKey = 'sb_publishable__A4SMLpftMmIJLHjaUVcMA_6QSnvLTw';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
