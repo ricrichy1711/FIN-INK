@@ -217,9 +217,19 @@ export default function Profile() {
             <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400">
               <Phone className="w-5 h-5" />
             </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400">
+              <Phone className="w-5 h-5" />
+            </div>
             <div>
               <p className="text-xs text-slate-500">Celular</p>
-              <p className="text-sm text-white">{user.phone}</p>
+              <p className="text-sm text-white">{user.phone || 'No registrado'}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-700/50">
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Tu ID Único (Pégalo en Supabase)</p>
+              <p className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 p-2 rounded border border-emerald-500/20 select-all">{authUser?.id}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-700/50">
