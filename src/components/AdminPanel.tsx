@@ -38,6 +38,7 @@ export default function AdminPanel() {
   const [tokens, setTokens] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingTokens, setLoadingTokens] = useState(false);
+  const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
   const [tokenDuration, setTokenDuration] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -101,6 +102,49 @@ export default function AdminPanel() {
       alert("Error actualizando usuario: " + error.message);
     } else {
       setUsers(users.map(u => u.id === userId ? { ...u, status, warnings } : u));
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, blockId: string) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate size (max 5MB for images, 15MB for videos)
+    const isVideo = file.type.startsWith('video/');
+    const maxSize = isVideo ? 15 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert(`El archivo es demasiado grande. Máximo: ${isVideo ? '15MB' : '5MB'}`);
+      return;
+    }
+
+    setUploadingBlockId(blockId);
+    
+    // Generate a unique filename
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `blocks/${fileName}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('media')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media')
+        .getPublicUrl(filePath);
+
+      // Update the specific block's URL
+      const newBlocks = promoBlocks.map(b => 
+        b.id === blockId ? { ...b, url: publicUrl } : b
+      );
+      setPromoBlocks(newBlocks);
+
+    } catch (err: any) {
+      alert('Error subiendo archivo: ' + err.message + '\n\nNOTA: Asegúrate de haber creado el bucket "media" y hacerlo público en Supabase.');
+    } finally {
+      setUploadingBlockId(null);
     }
   };
 
@@ -552,14 +596,42 @@ export default function AdminPanel() {
                             </div>
                             <div>
                               <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">URL del Archivo (Imagen/Video)</label>
-                              <input 
-                                type="text"
-                                placeholder="https://ejemplo.com/foto.png"
-                                value={block.url || ''}
-                                onChange={(e) => setPromoBlocks(blocks => blocks.map(b => b.id === block.id ? { ...b, url: e.target.value } : b))}
-                                className="w-full bg-[#020202] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
-                                disabled={block.type === 'text'}
-                              />
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="text"
+                                  placeholder="https://ejemplo.com/foto.png"
+                                  value={block.url || ''}
+                                  onChange={(e) => setPromoBlocks(blocks => blocks.map(b => b.id === block.id ? { ...b, url: e.target.value } : b))}
+                                  className="flex-1 bg-[#020202] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                                  disabled={block.type === 'text'}
+                                />
+                                <div className="relative shrink-0">
+                                  <input 
+                                    type="file" 
+                                    id={`file-upload-${block.id}`}
+                                    accept="image/*,video/*"
+                                    className="hidden"
+                                    onChange={(e) => handleFileUpload(e, block.id)}
+                                    disabled={block.type === 'text'}
+                                  />
+                                  <label 
+                                    htmlFor={`file-upload-${block.id}`}
+                                    className={cn(
+                                      "flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold uppercase tracking-widest text-[10px] transition-all whitespace-nowrap border",
+                                      block.type === 'text' ? "opacity-50 cursor-not-allowed bg-zinc-900 border-white/5 text-zinc-500" :
+                                      uploadingBlockId === block.id 
+                                        ? "bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed"
+                                        : "bg-emerald-500 hover:bg-emerald-400 border-transparent text-black shadow-lg shadow-emerald-500/20 cursor-pointer"
+                                    )}
+                                  >
+                                    {uploadingBlockId === block.id ? (
+                                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Subiendo...</>
+                                    ) : (
+                                      <><Image className="w-3.5 h-3.5" /> Subir</>
+                                    )}
+                                  </label>
+                                </div>
+                              </div>
                             </div>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
