@@ -126,6 +126,24 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 export default function App() {
   const isMobile = Capacitor.isNativePlatform();
 
+  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-red-500/10 border border-red-500 text-red-500 p-8 rounded-2xl max-w-lg">
+          <h1 className="text-2xl font-black mb-4">Error de Vercel (Variables de Entorno)</h1>
+          <p className="mb-4">
+            Tu página web cargó correctamente, pero las variables <strong>VITE_SUPABASE_URL</strong> y <strong>VITE_SUPABASE_ANON_KEY</strong> no están guardadas en Vercel, o no hiciste un "Redeploy" después de guardarlas.
+          </p>
+          <ul className="text-left list-disc pl-5 space-y-2">
+            <li>Asegúrate de que los nombres de las variables sean exactos (en mayúsculas).</li>
+            <li>Asegúrate de no haber puesto comillas al principio o al final de las claves.</li>
+            <li>Asegúrate de ir a <strong>Deployments &gt; Redeploy</strong> para que Vercel vuelva a empaquetar el código.</li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ThemeProvider>
       <AuthProvider>
