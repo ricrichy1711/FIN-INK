@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Cloud, Smartphone, ShieldCheck, Download, LogIn, Check, Mail, MessageCircle, AlertCircle } from 'lucide-react';
+import { Cloud, Smartphone, ShieldCheck, Download, LogIn, Check, Mail, MessageCircle, AlertCircle, X } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 
 interface PromoBlock {
@@ -16,6 +16,7 @@ export default function LandingPage() {
   const [contactPhone, setContactPhone] = useState('+52 55 0000 0000');
   const [promoBanner, setPromoBanner] = useState('');
   const [promoBlocks, setPromoBlocks] = useState<PromoBlock[]>([]);
+  const [expandedMedia, setExpandedMedia] = useState<{url: string, type: string} | null>(null);
 
   useEffect(() => {
     const savedContact = localStorage.getItem('finSync_contact');
@@ -139,11 +140,19 @@ export default function LandingPage() {
             {promoBlocks.map((block) => (
               <div key={block.id} className="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 flex flex-col h-full hover:bg-slate-800/50 transition-colors">
                 {(block.type === 'image' || block.type === 'video') && block.url && (
-                  <div className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 flex-shrink-0 aspect-video bg-black/50">
+                  <div 
+                    className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 flex-shrink-0 aspect-video bg-black/50 cursor-pointer group relative"
+                    onClick={() => setExpandedMedia({ url: block.url, type: block.type })}
+                  >
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors z-10 flex items-center justify-center">
+                      <div className="bg-black/50 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity transform scale-75 group-hover:scale-100">
+                        {block.type === 'video' ? <Cloud className="w-6 h-6 text-white" /> : <ShieldCheck className="w-6 h-6 text-white" />}
+                      </div>
+                    </div>
                     {block.type === 'image' ? (
-                      <img src={block.url} alt={block.title || 'Promo Image'} className="w-full h-full object-cover" />
+                      <img src={block.url} alt={block.title || 'Promo Image'} className="w-full h-full object-contain p-2" />
                     ) : (
-                      <video src={block.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                      <video src={block.url} autoPlay loop muted playsInline className="w-full h-full object-contain" />
                     )}
                   </div>
                 )}
@@ -233,6 +242,32 @@ export default function LandingPage() {
       <footer className="border-t border-slate-800/80 py-8 text-center text-slate-500 text-sm">
         <p>© 2026 FIN$INK SaaS. Todos los derechos reservados.</p>
       </footer>
+
+      {/* Media Modal */}
+      {expandedMedia && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setExpandedMedia(null)}
+        >
+          <div 
+            className="relative w-full max-w-4xl max-h-[90vh] bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex items-center justify-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-red-500/80 text-white rounded-full transition-colors backdrop-blur-md"
+              onClick={() => setExpandedMedia(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {expandedMedia.type === 'image' ? (
+              <img src={expandedMedia.url} alt="Expanded Media" className="w-full h-full max-h-[90vh] object-contain" />
+            ) : (
+              <video src={expandedMedia.url} controls autoPlay className="w-full h-full max-h-[90vh] object-contain outline-none" />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
