@@ -135,22 +135,20 @@ export default function LandingPage() {
 
         {/* Dynamic Promo Blocks Section */}
         {promoBlocks.length > 0 && (
-          <div className="max-w-6xl mx-auto mt-32 space-y-16">
+          <div className="max-w-6xl mx-auto mt-32 grid md:grid-cols-3 gap-8">
             {promoBlocks.map((block) => (
-              <div key={block.id} className="bg-slate-900/40 p-8 md:p-12 rounded-[2rem] border border-slate-800 flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                <div className="flex-1 space-y-4">
-                  {block.title && <h3 className="text-3xl font-bold text-white">{block.title}</h3>}
-                  {block.description && <p className="text-lg text-slate-400 leading-relaxed">{block.description}</p>}
-                </div>
+              <div key={block.id} className="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 flex flex-col h-full hover:bg-slate-800/50 transition-colors">
                 {(block.type === 'image' || block.type === 'video') && block.url && (
-                  <div className="flex-1 w-full flex justify-center">
+                  <div className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50 flex-shrink-0 aspect-video bg-black/50">
                     {block.type === 'image' ? (
-                      <img src={block.url} alt={block.title || 'Promo Image'} className="w-full max-w-md rounded-2xl shadow-2xl border border-slate-700/50 object-cover" />
+                      <img src={block.url} alt={block.title || 'Promo Image'} className="w-full h-full object-cover" />
                     ) : (
-                      <video src={block.url} autoPlay loop muted playsInline className="w-full max-w-md rounded-2xl shadow-2xl border border-slate-700/50 object-cover" />
+                      <video src={block.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
                     )}
                   </div>
                 )}
+                {block.title && <h3 className="text-xl font-bold mb-3 text-white">{block.title}</h3>}
+                {block.description && <p className="text-slate-400 flex-1 text-sm leading-relaxed">{block.description}</p>}
               </div>
             ))}
           </div>
