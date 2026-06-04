@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Cloud, Smartphone, ShieldCheck, Download, LogIn, Check, Mail, MessageCircle, AlertCircle } from 'lucide-react';
+import { supabase } from '@/utils/supabase';
+
+interface PromoBlock {
+  id: string;
+  type: 'image' | 'video' | 'text';
+  url?: string;
+  title?: string;
+  description?: string;
+}
 
 export default function LandingPage() {
   const [contactEmail, setContactEmail] = useState('contacto@finsync.app');
   const [contactPhone, setContactPhone] = useState('+52 55 0000 0000');
   const [promoBanner, setPromoBanner] = useState('');
+  const [promoBlocks, setPromoBlocks] = useState<PromoBlock[]>([]);
 
   useEffect(() => {
     const savedContact = localStorage.getItem('finSync_contact');
@@ -16,6 +26,18 @@ export default function LandingPage() {
     }
     const savedPromo = localStorage.getItem('finSync_promo');
     if (savedPromo) setPromoBanner(savedPromo);
+
+    const fetchBlocks = async () => {
+      try {
+        const { data, error } = await supabase.from('app_settings').select('promo_blocks').single();
+        if (!error && data && data.promo_blocks) {
+          setPromoBlocks(data.promo_blocks as PromoBlock[]);
+        }
+      } catch (err) {
+        console.error('Error fetching promo blocks', err);
+      }
+    };
+    fetchBlocks();
   }, []);
 
   return (
@@ -110,6 +132,29 @@ export default function LandingPage() {
             <p className="text-slate-400">Tu información financiera está encriptada y segura. Nadie más tiene acceso a tus presupuestos o historiales de gastos.</p>
           </div>
         </div>
+
+        {/* Dynamic Promo Blocks Section */}
+        {promoBlocks.length > 0 && (
+          <div className="max-w-6xl mx-auto mt-32 space-y-16">
+            {promoBlocks.map((block) => (
+              <div key={block.id} className="bg-slate-900/40 p-8 md:p-12 rounded-[2rem] border border-slate-800 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                <div className="flex-1 space-y-4">
+                  {block.title && <h3 className="text-3xl font-bold text-white">{block.title}</h3>}
+                  {block.description && <p className="text-lg text-slate-400 leading-relaxed">{block.description}</p>}
+                </div>
+                {(block.type === 'image' || block.type === 'video') && block.url && (
+                  <div className="flex-1 w-full flex justify-center">
+                    {block.type === 'image' ? (
+                      <img src={block.url} alt={block.title || 'Promo Image'} className="w-full max-w-md rounded-2xl shadow-2xl border border-slate-700/50 object-cover" />
+                    ) : (
+                      <video src={block.url} autoPlay loop muted playsInline className="w-full max-w-md rounded-2xl shadow-2xl border border-slate-700/50 object-cover" />
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Pricing Section */}
         <div className="max-w-6xl mx-auto mt-32">

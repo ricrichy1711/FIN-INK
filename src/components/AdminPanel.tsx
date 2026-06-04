@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, LayoutTemplate, Megaphone, Save, ArrowLeft, Key, Loader2, Activity, Menu, X, ShieldCheck, LogOut, Search, RefreshCcw, DollarSign } from 'lucide-react';
+import { Users, LayoutTemplate, Megaphone, Save, ArrowLeft, Key, Loader2, Activity, Menu, X, ShieldCheck, LogOut, Search, RefreshCcw, DollarSign, Image } from 'lucide-react';
 import { supabase } from '@/utils/supabase';
 
 function cn(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(' ');
+}
+
+interface PromoBlock {
+  id: string;
+  type: 'image' | 'video' | 'text';
+  url?: string;
+  title?: string;
+  description?: string;
 }
 
 export default function AdminPanel() {
@@ -17,6 +25,11 @@ export default function AdminPanel() {
   const [contactEmail, setContactEmail] = useState('contacto@finsync.app');
   const [contactPhone, setContactPhone] = useState('+52 55 0000 0000');
   const [promoBanner, setPromoBanner] = useState('');
+  const [promoBlocks, setPromoBlocks] = useState<PromoBlock[]>([
+    { id: '1', type: 'image', url: '', title: '', description: '' },
+    { id: '2', type: 'image', url: '', title: '', description: '' },
+    { id: '3', type: 'image', url: '', title: '', description: '' }
+  ]);
   
   // Supabase Users & Tokens
   const [users, setUsers] = useState<any[]>([]);
@@ -37,6 +50,14 @@ export default function AdminPanel() {
     const { data: tokensData } = await supabase.from('premium_tokens').select('*').order('created_at', { ascending: false });
     if (tokensData) setTokens(tokensData);
     
+    // Fetch CMS settings
+    const { data: settings } = await supabase.from('app_settings').select('*').single();
+    if (settings) {
+      if (settings.promo_blocks && settings.promo_blocks.length > 0) {
+        setPromoBlocks(settings.promo_blocks);
+      }
+    }
+
     setLoadingUsers(false);
     setLoadingTokens(false);
     setTimeout(() => setIsRefreshing(false), 500);
@@ -79,10 +100,21 @@ export default function AdminPanel() {
     }
   };
 
-  const handleSaveCMS = () => {
+  const handleSaveCMS = async () => {
+    // Save to LocalStorage for backwards compatibility in other parts of the app
     localStorage.setItem('finSync_contact', JSON.stringify({ email: contactEmail, phone: contactPhone }));
     localStorage.setItem('finSync_promo', promoBanner);
-    alert('Cambios guardados. Se reflejarán en la Landing Page.');
+    
+    // Save Promo Blocks to Supabase
+    const { error } = await supabase.from('app_settings').update({
+      promo_blocks: promoBlocks
+    }).eq('id', 1); // Assuming id 1 is the main settings row
+
+    if (error) {
+      alert('Error guardando en Supabase: ' + error.message + '\n\nNOTA: Asegúrate de haber ejecutado la migración de base de datos para agregar la columna promo_blocks en app_settings.');
+    } else {
+      alert('Cambios guardados exitosamente. Se reflejarán en la Landing Page al instante.');
+    }
   };
 
   const navItems = [
@@ -450,6 +482,62 @@ export default function AdminPanel() {
                           className="w-full bg-[#020202] border border-white/10 rounded-2xl p-4 text-sm font-medium text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                         />
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 bg-[#050505] rounded-3xl border border-white/5 space-y-6">
+                    <h3 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2"><Image className="w-4 h-4 text-emerald-500" /> Bloques Multimedia (Landing Page)</h3>
+                    <p className="text-xs text-zinc-500 mb-4">Configura los 3 bloques que aparecen antes de los precios en la página principal.</p>
+                    <div className="space-y-8">
+                      {promoBlocks.map((block, index) => (
+                        <div key={block.id} className="p-4 bg-[#09090b] border border-white/5 rounded-2xl space-y-4">
+                          <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Bloque {index + 1}</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Tipo de Medio</label>
+                              <select
+                                value={block.type}
+                                onChange={(e) => setPromoBlocks(blocks => blocks.map(b => b.id === block.id ? { ...b, type: e.target.value as any } : b))}
+                                className="w-full bg-[#020202] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                              >
+                                <option value="text">Solo Texto</option>
+                                <option value="image">Imagen / GIF</option>
+                                <option value="video">Video (MP4)</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">URL del Archivo (Imagen/Video)</label>
+                              <input 
+                                type="text"
+                                placeholder="https://ejemplo.com/foto.png"
+                                value={block.url || ''}
+                                onChange={(e) => setPromoBlocks(blocks => blocks.map(b => b.id === block.id ? { ...b, url: e.target.value } : b))}
+                                className="w-full bg-[#020202] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                                disabled={block.type === 'text'}
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Título Principal</label>
+                              <input 
+                                type="text"
+                                value={block.title || ''}
+                                onChange={(e) => setPromoBlocks(blocks => blocks.map(b => b.id === block.id ? { ...b, title: e.target.value } : b))}
+                                className="w-full bg-[#020202] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Descripción Corta</label>
+                              <textarea 
+                                value={block.description || ''}
+                                onChange={(e) => setPromoBlocks(blocks => blocks.map(b => b.id === block.id ? { ...b, description: e.target.value } : b))}
+                                className="w-full bg-[#020202] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 h-20 resize-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
