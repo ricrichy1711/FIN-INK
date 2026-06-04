@@ -14,8 +14,10 @@ import Profile from '@/components/Profile';
 export default function DashboardApp() {
   const { profile, user } = useAuth();
   
+  const isAdmin = profile?.role === 'admin' || user?.email === 'ricrichy1711@gmail.com';
+
   const localName = localStorage.getItem('gastosapp_local_name');
-  const displayTitle = profile?.role === 'admin' 
+  const displayTitle = isAdmin
     ? 'Mi Dinero' 
     : (user?.user_metadata?.name || localName || 'Mi Dinero');
 
@@ -54,7 +56,7 @@ export default function DashboardApp() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {profile?.role === 'admin' && (
+              {isAdmin && (
                 <Link to="/admin" className="text-xs text-emerald-400 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-lg font-bold transition-colors hover:bg-emerald-500/20">
                   Panel Admin
                 </Link>

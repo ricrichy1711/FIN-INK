@@ -11,11 +11,13 @@ import { useState, useEffect } from 'react';
 const CURRENT_APP_VERSION = '1.0.0';
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { profile, loading } = useAuth();
+  const { profile, user, loading } = useAuth();
   
   if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-emerald-500">Cargando...</div>;
   
-  if (profile?.role !== 'admin') {
+  const isAdmin = profile?.role === 'admin' || user?.email === 'ricrichy1711@gmail.com';
+
+  if (!isAdmin) {
     return <Navigate to="/" replace />;
   }
   
