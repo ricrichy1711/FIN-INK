@@ -1,17 +1,15 @@
-const CACHE_NAME = 'gastosapp-v1';
+const CACHE_NAME = 'gastosapp-v2';
 const ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  self.skipWaiting();
+  self.skipWaiting(); // Forzar actualización del service worker
 });
 
 self.addEventListener('activate', (event) => {
@@ -24,6 +22,15 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Network-first para documentos HTML (para que siempre cargue la última versión si hay internet)
+  if (event.request.mode === 'navigate' || event.request.headers.get('accept').includes('text/html')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache-first para imágenes y otros recursos
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
