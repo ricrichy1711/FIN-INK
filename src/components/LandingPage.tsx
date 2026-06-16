@@ -215,8 +215,8 @@ export default function LandingPage() {
           <p className="text-slate-400 mb-8 max-w-xl mx-auto relative z-10">Instala nuestra aplicación nativa para Android y registra tus gastos e ingresos al instante, incluso sin conexión a internet.</p>
           
           <a 
-            href="/apk/app_de_gastos.apk"
-            download="FINSINK_Gastos.apk"
+            href="/apk/apk_gastos_6.apk"
+            download="FINSINK_Gastos_v6.apk"
             className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 hover:bg-slate-100 font-bold rounded-2xl transition-all shadow-xl inline-flex items-center justify-center gap-3 relative z-10"
           >
             <Download className="w-6 h-6" />
